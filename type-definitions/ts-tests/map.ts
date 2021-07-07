@@ -16,12 +16,22 @@ import { Map, List } from '../../';
   Map([['a', 'a']]);
 
   // $ExpectType Map<number, string>
-  Map(
-    List<[number, string]>([[1, 'a']])
-  );
+  Map(List<[number, string]>([[1, 'a']]));
 
-  // $ExpectType Map<string, number>
+  // $ExpectType ObjectLikeMap<{ a: number; }>
   Map({ a: 1 });
+
+  // $ExpectType ObjectLikeMap<{ a: number; b: string; }>
+  Map({ a: 1, b: 'b' });
+
+  // $ExpectType ObjectLikeMap<{ a: ObjectLikeMap<{ b: ObjectLikeMap<{ c: number; }>; }>; }>
+  Map({ a: Map({ b: Map({ c: 3 }) }) });
+
+  // $ExpectError
+  Map<{ a: string }>({ a: 1 });
+
+  // $ExpectError
+  Map<{ a: string }>({ a: 'a', b: 'b' });
 
   // No longer works in typescript@>=3.9
   // // $ExpectError - TypeScript does not support Lists as tuples
@@ -49,6 +59,31 @@ import { Map, List } from '../../';
 
   // $ExpectError
   Map<number, number>().get<number>(4, 'a');
+
+  // $ExpectType number
+  Map({ a: 4, b: true }).get('a');
+
+  // $ExpectType boolean
+  Map({ a: 4, b: true }).get('b');
+
+  // $ExpectType boolean
+  Map({ a: Map({ b: true }) })
+    .get('a')
+    .get('b');
+
+  // $ExpectError
+  Map({ a: 4 }).get('b');
+}
+
+{
+  // Minimum TypeScript Version: 4.1
+  // #getIn
+
+  // $ExpectType number
+  Map({ a: 4, b: true }).getIn(['a']);
+
+  // $ExpectType number
+  Map({ a: Map({ b: Map({ c: Map({ d: 4 }) }) }) }).getIn(['a', 'b', 'c', 'd']);
 }
 
 {
@@ -268,20 +303,14 @@ import { Map, List } from '../../';
   // #flatMap
 
   // $ExpectType Map<number, number>
-  Map<
-    number,
-    number
-  >().flatMap((value: number, key: number, iter: Map<number, number>) => [
-    [0, 1],
-  ]);
+  Map<number, number>().flatMap(
+    (value: number, key: number, iter: Map<number, number>) => [[0, 1]]
+  );
 
   // $ExpectType Map<string, string>
-  Map<
-    number,
-    number
-  >().flatMap((value: number, key: number, iter: Map<number, number>) => [
-    ['a', 'b'],
-  ]);
+  Map<number, number>().flatMap(
+    (value: number, key: number, iter: Map<number, number>) => [['a', 'b']]
+  );
 
   // $ExpectType Map<number, number>
   Map<number, number>().flatMap<number, number>(
