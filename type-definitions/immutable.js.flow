@@ -1899,13 +1899,13 @@ declare class RecordInstance<T: Object = Object> {
 }
 
 declare function fromJS(
-  jsValue: mixed,
+  jsValue: any,
   reviver?: (
     key: string | number,
-    sequence: KeyedCollection<string, mixed> | IndexedCollection<mixed>,
+    sequence: Collection.Keyed<string, any> | Collection.Indexed<any>,
     path?: Array<string | number>
-  ) => mixed
-): mixed;
+  ) => any
+): any;
 
 declare function is(first: mixed, second: mixed): boolean;
 declare function hash(value: mixed): number;
